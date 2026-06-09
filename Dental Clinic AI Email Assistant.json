@@ -1,0 +1,139 @@
+{
+  "name": "Dental Clinic AI Email Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -384,
+        -64
+      ],
+      "id": "206f16ef-5fc0-4183-8857-a7b31d571ada",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "kFsWS7ggNd7vLpKu",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI Email Assistant for Smile Care Dental Clinic.\n\nYour role is to read patient emails and generate clear, professional, and friendly responses based only on the information provided below.\n\nClinic Information:\n\n* Clinic Name: Smile Care Dental Clinic\n* Opening Hours: Saturday to Thursday, 9:00 AM – 7:00 PM\n* Closed: Friday\n* Consultation Fee: $20\n* Services Available: Teeth Whitening, Braces/Bracing\n* Emergency Dental Services: Available during opening hours only\n* Appointment Booking: Call +1234 567 890\n\nInstructions:\n\n* Answer patient questions accurately and concisely.\n* Maintain a polite, professional, and helpful tone.\n* Do not make up information, prices, services, policies, or medical advice.\n* If the requested information is unavailable, reply: \"For further information, please contact Smile Care Dental Clinic directly at +1234 567 890.\"\n* If a patient wants to book, reschedule, or cancel an appointment, direct them to call +1234 567 890.\n* Keep responses brief and focused on the patient's question.\nreply to the user :  {{ $json.snippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -96,
+        -128
+      ],
+      "id": "bc8c10d1-9cb5-469e-8c58-04ae9b008570",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        80
+      ],
+      "id": "b6849bef-3636-4bbc-b9f2-dfb95e491f32",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Kvyg23P7IldmcgZd",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -128
+      ],
+      "id": "aa3f0321-2cad-4ab5-b58a-506ebe1d32e1",
+      "name": "Reply to a message",
+      "webhookId": "67b95f4d-3b38-4527-9fa3-10fd72f5ba49",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "kFsWS7ggNd7vLpKu",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "42df77e6-bd4d-4152-8030-7de73c45e9d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "beca6b10afe0e497afe213c8fd58923345d277a819e933361be483a397e71129"
+  },
+  "nodeGroups": [],
+  "id": "5jyC78d8yYOmdhtg",
+  "tags": []
+}
